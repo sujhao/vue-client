@@ -6,18 +6,22 @@
       <li>单独下载的压缩图或下载所有的ZIP压缩包。</li>
     </ol>
     <el-upload
-      action="https://jsonplaceholder.typicode.com/posts/"
-      list-type="picture-card"
+      action="http://localhost:9666/upload"
       :on-preview="handlePictureCardPreview"
       :on-remove="handleRemove"
+      :on-success="handleUploadSuc"
+      :on-error="handleUploadError"
+      :on-progress="handleUploadProgress"
+      :before-upload="handleBeforeUpload"
+      :on-exceed="handleUploadLimit"
+      list-type="picture-card"
+      multiple
+      drag
+      :limit="3"
+      accept="image/jpeg, image/png"
     >
-      <!-- <i class="el-icon-plus"></i> -->
-      <i class="el-icon-upload"></i>
-      <div class="el-upload__text">
-        将文件拖到此处，或
-        <em>点击上传</em>
-      </div>
-      <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+      <i class="el-icon-plus"></i>
+
     </el-upload>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt />
@@ -63,6 +67,32 @@ export default {
       this.dialogImageUrl = file.url;
       this.dialogVisible = true;
       Logger.log("handlePictureCardPreview=", file);
+    },
+    handleUploadSuc(response, file, fileList) {
+      Logger.log("handleUploadSuc resp=", response);
+      Logger.log("handleUploadSuc file=", file);
+      Logger.log("handleUploadSuc fileList=", fileList);
+    },
+    handleUploadProgress(event, file, fileList) {
+      Logger.log("handleUploadProgress event=", event);
+      Logger.log("handleUploadProgress file=", file);
+      Logger.log("handleUploadProgress fileList=", fileList);
+    },
+    handleUploadError(err, file, fileList) {
+      Logger.log("handleUploadError err=", err);
+      Logger.log("handleUploadError file=", file);
+      Logger.log("handleUploadError fileList=", fileList);
+    },
+    handleBeforeUpload(file) {
+      Logger.log("handleBeforeUpload file=", file);
+    },
+    handdleUploadChange(file, fileList) {
+      Logger.log("handdleUploadChange file=", file);
+      Logger.log("handdleUploadChange fileList=", fileList);
+    },
+    handleUploadLimit(files, fileList) {
+      Logger.log("handleUploadLimit files=", files);
+      Logger.log("handleUploadLimit fileList=", fileList);
     }
   }
 };
