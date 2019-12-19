@@ -6,7 +6,8 @@
       <li>单独下载的压缩图或下载所有的ZIP压缩包。</li>
     </ol>
     <el-upload
-      action="http://localhost:9666/upload"
+      class="uploadDiv"
+      :action="uploadUrl"
       :on-preview="handlePictureCardPreview"
       :on-remove="handleRemove"
       :on-success="handleUploadSuc"
@@ -14,15 +15,34 @@
       :on-progress="handleUploadProgress"
       :before-upload="handleBeforeUpload"
       :on-exceed="handleUploadLimit"
-      list-type="picture-card"
       multiple
       drag
-      :limit="3"
+      :show-file-list="false"
+      :limit="7"
       accept="image/jpeg, image/png"
     >
-      <i class="el-icon-plus"></i>
-
+      <!-- <i class="el-icon-plus"></i> -->
+      <i class="el-icon-upload"></i>
+      <div class="el-upload__text">
+        将文件拖到此处，或
+        <em>点击上传</em>
+      </div>
+      <div class="el-upload__tip" slot="tip">只能上传jpg/png文件,一次最多上传7个</div>
     </el-upload>
+
+    <div>
+      <el-button type="danger" plain class="btnclean">清空列表</el-button>
+    </div>
+
+    <PicComponent></PicComponent>
+    <PicComponent></PicComponent>
+    <PicComponent></PicComponent>
+    <PicComponent></PicComponent>
+    <PicComponent></PicComponent>
+    <PicComponent></PicComponent>
+    <PicComponent></PicComponent>
+    <div class="pagetips">喜欢吗？赶紧分享一次</div>
+    <div class="smalltips">服务器资源有限,所有上传的数据将在一小时后将被删除。</div>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt />
     </el-dialog>
@@ -46,19 +66,44 @@
 .header-ol {
   margin: 0;
   margin-left: 1.4em;
-  list-style-type: upper-latin;
+}
+
+.uploadDiv {
+  margin-top: 20px;
+}
+.btnclean {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pagetips {
+  margin-top: 20px;
+  font-weight: 30px;
+  font-size: 30px;
+}
+.smalltips {
+  margin-top: 20px;
+  font-weight: 10px;
+  font-size: 10px;
 }
 </style>
 
 <script>
 import { Logger } from "../engine/utils/Logger";
+import { Config } from "../engine/config/Config";
+const axios = require("axios");
+import PicComponent from "../component/PicComponent"; //引入子组件
+
 export default {
   data() {
     return {
       dialogImageUrl: "",
+      // uploadUrl:Config.uploadUrl,
+      uploadUrl: "http://localhost:9666/upload/",
       dialogVisible: false
     };
   },
+  components: { PicComponent },
   methods: {
     handleRemove(file, fileList) {
       Logger.log("handleRemove=", file, fileList);
@@ -72,6 +117,34 @@ export default {
       Logger.log("handleUploadSuc resp=", response);
       Logger.log("handleUploadSuc file=", file);
       Logger.log("handleUploadSuc fileList=", fileList);
+
+      if (response["code"] == 0) {
+        this.$message({
+          message: response["msg"],
+          type: "success"
+        });
+        let url = Config.Pic_Url + response["url"];
+        // GET request for remote image
+        // axios({
+        //   method: "get",
+        //   url: url,
+        //   responseType: "stream"
+        // }).then(function(response) {
+        //   Logger.log("response===", response)
+        //   // response.data.pipe(fs.createWriteStream("aaa.jpg"));
+        // });
+        //       let data = response["data"]
+        // Logger.log("data=====", data)
+        // let $form = $('<form method="GET"></form>');
+        // $form.attr("action", url);
+        // $form.appendTo($("body"));
+        // $form.submit();
+      } else {
+        this.$message({
+          message: response["msg"],
+          type: "warning"
+        });
+      }
     },
     handleUploadProgress(event, file, fileList) {
       Logger.log("handleUploadProgress event=", event);
