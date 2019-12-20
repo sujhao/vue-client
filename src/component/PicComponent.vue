@@ -1,10 +1,13 @@
 <template>
   <div class="PicComponent">
     <div>
-      <el-button type="primary" icon="el-icon-delete" size="mini" style="margin-top:5px"></el-button>
+      <el-button type="primary" icon="el-icon-delete" size="mini" style="margin-top:5px" @click="handleDelete"></el-button>
     </div>
     <el-image style="width: 120px; height: 120px" :src="imgUrl" fit="cover"></el-image>
-    <el-button size="mini" type="primary" style="width: 120px;">下载</el-button>
+
+    <div>原大小:{{fileSizeDesc}}</div>
+    <div>压缩后大小:{{compressFileSizeDesc}}</div>
+    <el-button size="mini" type="primary" style="margin-top:5px;width: 120px;">下载</el-button>
   </div>
 </template>
 
@@ -12,18 +15,35 @@
 <style scoped>
 .PicComponent {
   display: inline-block;
-  background-color: #FFF0ED;
-  width:150PX;
-  height:190PX;
+  background-color: #fff0ed;
+  width: 150px;
+  height: 240px;
 }
 </style>
 
 <script>
+
+import { FileSizeHelper } from "../engine/utils/FileSizeHelper";
 export default {
   data() {
     return {
       imgUrl: "http://localhost:9666/upload/1576749298443/cat.png"
     };
-  }
+  },
+  methods:{
+    handleDelete(){
+      this.$parent.handleDeletePicComponent(this.item)
+    }
+  },
+  computed: {
+    // a computed getter
+    fileSizeDesc() {
+      return FileSizeHelper.getPicSizeDesc(this.item.size);
+    },
+    compressFileSizeDesc() {
+      return FileSizeHelper.getPicSizeDesc(this.item.compressSize);
+    }
+  },
+  props: ["item"]
 };
 </script>>

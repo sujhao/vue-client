@@ -31,16 +31,10 @@
     </el-upload>
 
     <div>
-      <el-button type="danger" plain class="btnclean">清空列表</el-button>
+      <el-button type="danger" plain class="btnclean" @click="handleClearPic">清空列表</el-button>
     </div>
 
-    <PicComponent></PicComponent>
-    <PicComponent></PicComponent>
-    <PicComponent></PicComponent>
-    <PicComponent></PicComponent>
-    <PicComponent></PicComponent>
-    <PicComponent></PicComponent>
-    <PicComponent></PicComponent>
+    <PicComponent v-for="item in picItemList" :key="item.id" v-bind:item="item"></PicComponent>
     <div class="pagetips">喜欢吗？赶紧分享一次</div>
     <div class="smalltips">服务器资源有限,所有上传的数据将在一小时后将被删除。</div>
     <el-dialog :visible.sync="dialogVisible">
@@ -97,16 +91,34 @@ import PicComponent from "../component/PicComponent"; //引入子组件
 export default {
   data() {
     return {
+      picId:0,
       dialogImageUrl: "",
-      // uploadUrl:Config.uploadUrl,
       uploadUrl: "http://localhost:9666/upload/",
-      dialogVisible: false
+      dialogVisible: false,
+      picItemList:[
+        {
+          id:1,
+          url:"http://localhost:9666/upload/1576749298443/cat.png",
+          size:34751,
+          compressSize:10000,
+        }
+      ]
     };
   },
   components: { PicComponent },
   methods: {
     handleRemove(file, fileList) {
       Logger.log("handleRemove=", file, fileList);
+    },
+    handleDeletePicComponent(item){
+      Logger.log("handleDeletePicComponent==", item)
+
+      for(let i=0; i<this.picItemList.length; i++){
+        let tempItem = this.picItemList[i]
+        if(tempItem.id == item.id){
+          this.picItemList.splice(i, 1)
+        }
+      }
     },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url;
@@ -116,7 +128,7 @@ export default {
     handleUploadSuc(response, file, fileList) {
       Logger.log("handleUploadSuc resp=", response);
       Logger.log("handleUploadSuc file=", file);
-      Logger.log("handleUploadSuc fileList=", fileList);
+      this.picId ++;
 
       if (response["code"] == 0) {
         this.$message({
@@ -147,17 +159,12 @@ export default {
       }
     },
     handleUploadProgress(event, file, fileList) {
-      Logger.log("handleUploadProgress event=", event);
-      Logger.log("handleUploadProgress file=", file);
-      Logger.log("handleUploadProgress fileList=", fileList);
+      // Logger.log("handleUploadProgress event=", event);
     },
     handleUploadError(err, file, fileList) {
       Logger.log("handleUploadError err=", err);
-      Logger.log("handleUploadError file=", file);
-      Logger.log("handleUploadError fileList=", fileList);
     },
     handleBeforeUpload(file) {
-      Logger.log("handleBeforeUpload file=", file);
     },
     handdleUploadChange(file, fileList) {
       Logger.log("handdleUploadChange file=", file);
@@ -166,6 +173,9 @@ export default {
     handleUploadLimit(files, fileList) {
       Logger.log("handleUploadLimit files=", files);
       Logger.log("handleUploadLimit fileList=", fileList);
+    },
+    handleClearPic(){
+      this.picItemList = [];
     }
   }
 };
