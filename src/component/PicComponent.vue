@@ -1,10 +1,16 @@
 <template>
   <div class="PicComponent">
     <div>
-      <el-button type="primary" icon="el-icon-delete" size="mini" style="margin-top:5px" @click="handleDelete"></el-button>
+      <el-button
+        type="primary"
+        icon="el-icon-delete"
+        size="mini"
+        style="margin-top:5px"
+        @click="handleDelete"
+      ></el-button>
     </div>
     <el-image style="width: 120px; height: 120px" :src="imgUrl" fit="cover"></el-image>
-
+    <el-progress :percentage="item.percent"></el-progress>
     <div>原大小:{{fileSizeDesc}}</div>
     <div>压缩后大小:{{compressFileSizeDesc}}</div>
     <el-button size="mini" type="primary" style="margin-top:5px;width: 120px;">下载</el-button>
@@ -22,7 +28,6 @@
 </style>
 
 <script>
-
 import { FileSizeHelper } from "../engine/utils/FileSizeHelper";
 export default {
   data() {
@@ -30,9 +35,9 @@ export default {
       imgUrl: "http://localhost:9666/upload/1576749298443/cat.png"
     };
   },
-  methods:{
-    handleDelete(){
-      this.$parent.handleDeletePicComponent(this.item)
+  methods: {
+    handleDelete() {
+      this.$parent.handleDeletePicComponent(this.item);
     }
   },
   computed: {

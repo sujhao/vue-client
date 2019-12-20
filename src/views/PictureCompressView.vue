@@ -96,12 +96,13 @@ export default {
       uploadUrl: "http://localhost:9666/upload/",
       dialogVisible: false,
       picItemList:[
-        {
-          id:1,
-          url:"http://localhost:9666/upload/1576749298443/cat.png",
-          size:34751,
-          compressSize:10000,
-        }
+        // {
+        //   id:1,
+        //   url:"http://localhost:9666/upload/1576749298443/cat.png",
+        //   size:34751,
+        //   compressSize:10000,
+        //   percent:100,
+        // }
       ]
     };
   },
@@ -159,12 +160,15 @@ export default {
       }
     },
     handleUploadProgress(event, file, fileList) {
-      // Logger.log("handleUploadProgress event=", event);
+      Logger.log("handleUploadProgress event=", event);
+
+
     },
     handleUploadError(err, file, fileList) {
       Logger.log("handleUploadError err=", err);
     },
     handleBeforeUpload(file) {
+        Logger.log("handleBeforeUpload file=", file);
     },
     handdleUploadChange(file, fileList) {
       Logger.log("handdleUploadChange file=", file);
