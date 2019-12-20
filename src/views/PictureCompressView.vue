@@ -19,6 +19,7 @@
       drag
       :show-file-list="false"
       :limit="7"
+      list-type="picture-card"
       accept="image/jpeg, image/png"
     >
       <!-- <i class="el-icon-plus"></i> -->
@@ -33,8 +34,8 @@
     <div>
       <el-button type="danger" plain class="btnclean" @click="handleClearPic">清空列表</el-button>
     </div>
-
     <PicComponent v-for="item in picItemList" :key="item.id" v-bind:item="item"></PicComponent>
+
     <div class="pagetips">喜欢吗？赶紧分享一次</div>
     <div class="smalltips">服务器资源有限,所有上传的数据将在一小时后将被删除。</div>
     <el-dialog :visible.sync="dialogVisible">
@@ -91,33 +92,43 @@ import PicComponent from "../component/PicComponent"; //引入子组件
 export default {
   data() {
     return {
-      picId:0,
+      picId: 0,
       dialogImageUrl: "",
       uploadUrl: "http://localhost:9666/upload/",
       dialogVisible: false,
-      picItemList:[
+      picItemList: [
         // {
-        //   id:1,
-        //   url:"http://localhost:9666/upload/1576749298443/cat.png",
-        //   size:34751,
-        //   compressSize:10000,
-        //   percent:100,
+        //   id: 1,
+        //   uid: 45454,
+        //   url: "http://localhost:9666/upload/1576749298443/cat.png",
+        //   size: 34751,
+        //   compressSize: 10000,
+        //   percent: 100
         // }
       ]
     };
   },
   components: { PicComponent },
   methods: {
+    isInPicList(uid){
+      for(let i=0; i<this.picItemList.length; i++){
+        let item = this.picItemList[i]
+        if(item.uid == uid){
+          return true
+        }
+      }
+      return false;
+    },
     handleRemove(file, fileList) {
       Logger.log("handleRemove=", file, fileList);
     },
-    handleDeletePicComponent(item){
-      Logger.log("handleDeletePicComponent==", item)
+    handleDeletePicComponent(item) {
+      Logger.log("handleDeletePicComponent==", item);
 
-      for(let i=0; i<this.picItemList.length; i++){
-        let tempItem = this.picItemList[i]
-        if(tempItem.id == item.id){
-          this.picItemList.splice(i, 1)
+      for (let i = 0; i < this.picItemList.length; i++) {
+        let tempItem = this.picItemList[i];
+        if (tempItem.id == item.id) {
+          this.picItemList.splice(i, 1);
         }
       }
     },
@@ -129,46 +140,35 @@ export default {
     handleUploadSuc(response, file, fileList) {
       Logger.log("handleUploadSuc resp=", response);
       Logger.log("handleUploadSuc file=", file);
-      this.picId ++;
+      this.picId++;
+      let uid = file.uid
+      let picUrl = file.url
 
-      if (response["code"] == 0) {
-        this.$message({
-          message: response["msg"],
-          type: "success"
-        });
-        let url = Config.Pic_Url + response["url"];
-        // GET request for remote image
-        // axios({
-        //   method: "get",
-        //   url: url,
-        //   responseType: "stream"
-        // }).then(function(response) {
-        //   Logger.log("response===", response)
-        //   // response.data.pipe(fs.createWriteStream("aaa.jpg"));
-        // });
-        //       let data = response["data"]
-        // Logger.log("data=====", data)
-        // let $form = $('<form method="GET"></form>');
-        // $form.attr("action", url);
-        // $form.appendTo($("body"));
-        // $form.submit();
-      } else {
-        this.$message({
-          message: response["msg"],
-          type: "warning"
-        });
-      }
+      if(uid == )
+
+      // if (response["code"] == 0) {
+      //   this.$message({
+      //     message: response["msg"],
+      //     type: "success"
+      //   });
+      //   let url = Config.Pic_Url + response["url"];
+      // } else {
+      //   this.$message({
+      //     message: response["msg"],
+      //     type: "warning"
+      //   });
+      // }
     },
     handleUploadProgress(event, file, fileList) {
       Logger.log("handleUploadProgress event=", event);
-
-
+      Logger.log("handleUploadProgress file=", file);
+      Logger.log("handleUploadProgress fileList=", fileList);
     },
     handleUploadError(err, file, fileList) {
       Logger.log("handleUploadError err=", err);
     },
     handleBeforeUpload(file) {
-        Logger.log("handleBeforeUpload file=", file);
+      Logger.log("handleBeforeUpload file=", file);
     },
     handdleUploadChange(file, fileList) {
       Logger.log("handdleUploadChange file=", file);
@@ -178,7 +178,7 @@ export default {
       Logger.log("handleUploadLimit files=", files);
       Logger.log("handleUploadLimit fileList=", fileList);
     },
-    handleClearPic(){
+    handleClearPic() {
       this.picItemList = [];
     }
   }
