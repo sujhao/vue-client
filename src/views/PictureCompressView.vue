@@ -17,10 +17,12 @@
       :on-exceed="handleUploadLimit"
       multiple
       drag
-      :show-file-list="false"
-      :limit="7"
-      list-type="picture-card"
+      list-type="picture"
+      :show-file-list="true"
+      :limit="1"
       accept="image/jpeg, image/png"
+      ref="uploadUI"
+      :file-list="fileList"
     >
       <!-- <i class="el-icon-plus"></i> -->
       <i class="el-icon-upload"></i>
@@ -34,7 +36,7 @@
     <div>
       <el-button type="danger" plain class="btnclean" @click="handleClearPic">清空列表</el-button>
     </div>
-    <PicComponent v-for="item in picItemList" :key="item.id" v-bind:item="item"></PicComponent>
+    <PicComponent v-for="item in picItemList" :key="item.id" v-bind:item="item" ref="item.id"></PicComponent>
 
     <div class="pagetips">喜欢吗？赶紧分享一次</div>
     <div class="smalltips">服务器资源有限,所有上传的数据将在一小时后将被删除。</div>
@@ -84,6 +86,7 @@
 </style>
 
 <script>
+import Vue from "vue";
 import { Logger } from "../engine/utils/Logger";
 import { Config } from "../engine/config/Config";
 const axios = require("axios");
@@ -105,26 +108,47 @@ export default {
         //   compressSize: 10000,
         //   percent: 100
         // }
-      ]
+      ],
+      fileList:[]
     };
   },
   components: { PicComponent },
   methods: {
-    isInPicList(uid){
-      for(let i=0; i<this.picItemList.length; i++){
-        let item = this.picItemList[i]
-        if(item.uid == uid){
-          return true
+    isInPicList(uid) {
+      for (let i = 0; i < this.picItemList.length; i++) {
+        let item = this.picItemList[i];
+        if (item.uid == uid) {
+          return item;
         }
       }
       return false;
     },
+    checkAddUploadPicList(file) {
+      let uid = file.uid;
+      let picUrl = file.url;
+      let item = this.isInPicList(uid);
+      if (!item) {
+        item = {};
+        this.picId++;
+        item["id"] = this.picId;
+        item["uid"] = uid;
+        item["url"] = picUrl;
+        item["size"] = file.size;
+        item["percent"] = Math.floor(file.percentage);
+        this.picItemList.push(item);
+      } else {
+        item["url"] = picUrl;
+        item["percent"] = Math.floor(file.percentage);
+      }
+      Logger.log("checkAddUploadPicList==", item);
+      return item;
+    },
     handleRemove(file, fileList) {
       Logger.log("handleRemove=", file, fileList);
+      this.fileList = fileList;
     },
     handleDeletePicComponent(item) {
       Logger.log("handleDeletePicComponent==", item);
-
       for (let i = 0; i < this.picItemList.length; i++) {
         let tempItem = this.picItemList[i];
         if (tempItem.id == item.id) {
@@ -140,29 +164,35 @@ export default {
     handleUploadSuc(response, file, fileList) {
       Logger.log("handleUploadSuc resp=", response);
       Logger.log("handleUploadSuc file=", file);
-      this.picId++;
-      let uid = file.uid
-      let picUrl = file.url
-
-      if(uid == )
-
-      // if (response["code"] == 0) {
-      //   this.$message({
-      //     message: response["msg"],
-      //     type: "success"
-      //   });
-      //   let url = Config.Pic_Url + response["url"];
-      // } else {
-      //   this.$message({
-      //     message: response["msg"],
-      //     type: "warning"
-      //   });
-      // }
+      this.fileList = fileList;
+      if (response["code"] == 0) {
+        this.$message({
+          message: response["msg"],
+          type: "success"
+        });
+        // let database64 = response["data"];
+        // let buf1 = Buffer.from(database64, "base64");
+        // Logger.log("buf1==", buf1);
+        // let blob = new Blob([buf1], {
+        //   type: "image/*"
+        // });
+        // let bloburl = URL.createObjectURL(blob);
+        // Logger.log("bloburl===", bloburl)
+        // let url = Config.Pic_Url + response["url"];
+        // file.url = url;
+        let item = this.checkAddUploadPicList(file);
+      } else {
+        this.$message({
+          message: response["msg"],
+          type: "warning"
+        });
+      }
     },
     handleUploadProgress(event, file, fileList) {
       Logger.log("handleUploadProgress event=", event);
       Logger.log("handleUploadProgress file=", file);
       Logger.log("handleUploadProgress fileList=", fileList);
+      this.checkAddUploadPicList(file);
     },
     handleUploadError(err, file, fileList) {
       Logger.log("handleUploadError err=", err);
@@ -180,6 +210,10 @@ export default {
     },
     handleClearPic() {
       this.picItemList = [];
+      this.fileList = [];
+      // this.$refs.uploadUI.clearFiles()
+      // this.$refs.uploadUI.fileList = []
+
     }
   }
 };

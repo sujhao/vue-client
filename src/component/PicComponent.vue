@@ -9,7 +9,7 @@
         @click="handleDelete"
       ></el-button>
     </div>
-    <el-image style="width: 120px; height: 120px" :src="imgUrl" fit="cover"></el-image>
+    <el-image style="width: 120px; height: 120px" :src="item.src" fit="cover"></el-image>
     <el-progress :percentage="item.percent"></el-progress>
     <div>原大小:{{fileSizeDesc}}</div>
     <div>压缩后大小:{{compressFileSizeDesc}}</div>
@@ -32,7 +32,7 @@ import { FileSizeHelper } from "../engine/utils/FileSizeHelper";
 export default {
   data() {
     return {
-      imgUrl: "http://localhost:9666/upload/1576749298443/cat.png"
+        // img_src:require(this.item.url)
     };
   },
   methods: {
@@ -46,7 +46,11 @@ export default {
       return FileSizeHelper.getPicSizeDesc(this.item.size);
     },
     compressFileSizeDesc() {
-      return FileSizeHelper.getPicSizeDesc(this.item.compressSize);
+      if(this.item.compressSize){
+        return FileSizeHelper.getPicSizeDesc(this.item.compressSize);
+      }else{
+        return "0kb"
+      }
     }
   },
   props: ["item"]
