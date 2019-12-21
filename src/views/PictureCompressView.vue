@@ -19,7 +19,7 @@
       drag
       list-type="picture"
       :show-file-list="true"
-      :limit="7"
+      :limit="maxPicNum"
       accept="image/jpeg, image/png"
       ref="uploadUI"
       :file-list="fileList"
@@ -30,7 +30,7 @@
         将文件拖到此处，或
         <em>点击上传</em>
       </div>
-      <div class="el-upload__tip" slot="tip">只能上传jpg/png文件,一次最多上传7个</div>
+      <div class="el-upload__tip" slot="tip">只能上传jpg/png文件,一次最多上传{{maxPicNum}}个</div>
     </el-upload>
 
     <div>
@@ -96,6 +96,7 @@ export default {
   data() {
     return {
       picId: 0,
+      maxPicNum:7,
       dialogImageUrl: "",
       uploadUrl: "http://localhost:9666/upload/",
       dialogVisible: false,
@@ -103,10 +104,14 @@ export default {
         // {
         //   id: 1,
         //   uid: 45454,
+            // name:"",
         //   url: "http://localhost:9666/upload/1576749298443/cat.png",
         //   size: 34751,
         //   compressSize: 10000,
-        //   percent: 100
+        //   percent: 100,
+        //    database64:"",
+              // mime:""
+
         // }
       ],
       fileList:[]
@@ -133,6 +138,7 @@ export default {
         item["id"] = this.picId;
         item["uid"] = uid;
         item["url"] = picUrl;
+        item["name"] = file.name;
         item["size"] = file.size;
         item["percent"] = Math.floor(file.percentage);
         this.picItemList.push(item);
@@ -171,7 +177,11 @@ export default {
           message: response["msg"],
           type: "success"
         });
-        // let database64 = response["data"];
+        let database64 = response["data"];
+        let mime = response["mime"];
+        database64 = "data:"+mime+";base64,"+database64;
+        Logger.log("database64==",database64)
+        Logger.log("mime==",mime)
         // let buf1 = Buffer.from(database64, "base64");
         // Logger.log("buf1==", buf1);
         // let blob = new Blob([buf1], {
@@ -180,8 +190,9 @@ export default {
         // let bloburl = URL.createObjectURL(blob);
         // Logger.log("bloburl===", bloburl)
         // let url = Config.Pic_Url + response["url"];
-        // file.url = url;
         let item = this.checkAddUploadPicList(file);
+        item.database64 = database64;
+        item.mime = mime;
       } else {
         this.$message({
           message: response["msg"],
