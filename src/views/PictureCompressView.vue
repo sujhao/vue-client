@@ -96,7 +96,7 @@ export default {
   data() {
     return {
       picId: 0,
-      maxPicNum:7,
+      maxPicNum: 7,
       dialogImageUrl: "",
       uploadUrl: "http://localhost:9666/upload/",
       dialogVisible: false,
@@ -104,17 +104,16 @@ export default {
         // {
         //   id: 1,
         //   uid: 45454,
-            // name:"",
+        // name:"",
         //   url: "http://localhost:9666/upload/1576749298443/cat.png",
         //   size: 34751,
         //   compressSize: 10000,
         //   percent: 100,
         //    database64:"",
-              // mime:""
-
+        // mime:""
         // }
       ],
-      fileList:[]
+      fileList: []
     };
   },
   components: { PicComponent },
@@ -152,7 +151,7 @@ export default {
     handleRemove(file, fileList) {
       Logger.log("handleRemove=", file, fileList);
       this.fileList = fileList;
-      this.handleDeletePicComponent(file.uid)
+      this.handleDeletePicComponent(file.uid);
     },
     handleDeletePicComponent(uid) {
       Logger.log("handleDeletePicComponent==", uid);
@@ -179,17 +178,9 @@ export default {
         });
         let database64 = response["data"];
         let mime = response["mime"];
-        database64 = "data:"+mime+";base64,"+database64;
-        Logger.log("database64==",database64)
-        Logger.log("mime==",mime)
-        // let buf1 = Buffer.from(database64, "base64");
-        // Logger.log("buf1==", buf1);
-        // let blob = new Blob([buf1], {
-        //   type: "image/*"
-        // });
-        // let bloburl = URL.createObjectURL(blob);
-        // Logger.log("bloburl===", bloburl)
-        // let url = Config.Pic_Url + response["url"];
+        database64 = "data:" + mime + ";base64," + database64;
+        Logger.log("database64==", database64);
+        Logger.log("mime==", mime);
         let item = this.checkAddUploadPicList(file);
         item.database64 = database64;
         item.mime = mime;
@@ -208,6 +199,8 @@ export default {
     },
     handleUploadError(err, file, fileList) {
       Logger.log("handleUploadError err=", err);
+      this.fileList = fileList;
+      this.handleDeletePicComponent(file.uid);
     },
     handleBeforeUpload(file) {
       Logger.log("handleBeforeUpload file=", file);
@@ -223,9 +216,6 @@ export default {
     handleClearPic() {
       this.picItemList = [];
       this.fileList = [];
-      // this.$refs.uploadUI.clearFiles()
-      // this.$refs.uploadUI.fileList = []
-
     }
   }
 };
