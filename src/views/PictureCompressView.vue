@@ -19,7 +19,7 @@
       drag
       list-type="picture"
       :show-file-list="true"
-      :limit="1"
+      :limit="7"
       accept="image/jpeg, image/png"
       ref="uploadUI"
       :file-list="fileList"
@@ -146,12 +146,13 @@ export default {
     handleRemove(file, fileList) {
       Logger.log("handleRemove=", file, fileList);
       this.fileList = fileList;
+      this.handleDeletePicComponent(file.uid)
     },
-    handleDeletePicComponent(item) {
-      Logger.log("handleDeletePicComponent==", item);
+    handleDeletePicComponent(uid) {
+      Logger.log("handleDeletePicComponent==", uid);
       for (let i = 0; i < this.picItemList.length; i++) {
         let tempItem = this.picItemList[i];
-        if (tempItem.id == item.id) {
+        if (tempItem.uid == uid) {
           this.picItemList.splice(i, 1);
         }
       }

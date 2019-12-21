@@ -9,7 +9,7 @@
         @click="handleDelete"
       ></el-button>
     </div>
-    <el-image style="width: 120px; height: 120px" :src="item.src" fit="cover"></el-image>
+    <el-image style="width: 120px; height: 120px" :src="item.url" fit="cover"></el-image>
     <el-progress :percentage="item.percent"></el-progress>
     <div>原大小:{{fileSizeDesc}}</div>
     <div>压缩后大小:{{compressFileSizeDesc}}</div>
@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     handleDelete() {
-      this.$parent.handleDeletePicComponent(this.item);
+      this.$parent.handleDeletePicComponent(this.item.uid);
     }
   },
   computed: {
