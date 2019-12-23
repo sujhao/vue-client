@@ -18,7 +18,7 @@
       multiple
       drag
       list-type="picture"
-      :show-file-list="true"
+      :show-file-list="false"
       :limit="maxPicNum"
       accept="image/jpeg, image/png"
       ref="uploadUI"
@@ -36,7 +36,7 @@
     <div>
       <el-button type="danger" plain class="btnclean" @click="handleClearPic">清空列表</el-button>
     </div>
-    <PicComponent v-for="item in picItemList" :key="item.id" v-bind:item="item" ref="item.id"></PicComponent>
+    <PicComponent v-for="item in picItemList" :key="item.id" v-bind:item="item" :ref="item.componentName"></PicComponent>
 
     <div class="pagetips">喜欢吗？赶紧分享一次</div>
     <div class="smalltips">服务器资源有限,所有上传的数据将在一小时后将被删除。</div>
@@ -91,6 +91,7 @@ import { Logger } from "../engine/utils/Logger";
 import { Config } from "../engine/config/Config";
 const axios = require("axios");
 import PicComponent from "../component/PicComponent"; //引入子组件
+import { FileSizeHelper } from "../engine/utils/FileSizeHelper";
 
 export default {
   data() {
@@ -104,7 +105,8 @@ export default {
         // {
         //   id: 1,
         //   uid: 45454,
-        // name:"",
+        // componentName:"picItem1"
+        // name:"a.png",
         //   url: "http://localhost:9666/upload/1576749298443/cat.png",
         //   size: 34751,
         //   compressSize: 10000,
@@ -135,10 +137,11 @@ export default {
         item = {};
         this.picId++;
         item["id"] = this.picId;
+        item["componentName"] = "picItem" + uid;
         item["uid"] = uid;
         item["url"] = picUrl;
         item["name"] = file.name;
-        item["size"] = file.size;
+        item["size"] = FileSizeHelper.getPicSizeDesc(file.size);
         item["percent"] = Math.floor(file.percentage);
         this.picItemList.push(item);
       } else {
@@ -154,11 +157,20 @@ export default {
       this.handleDeletePicComponent(file.uid);
     },
     handleDeletePicComponent(uid) {
-      Logger.log("handleDeletePicComponent==", uid);
+      Logger.log("handleDeletePicComponent==", uid, this.fileList);
       for (let i = 0; i < this.picItemList.length; i++) {
         let tempItem = this.picItemList[i];
         if (tempItem.uid == uid) {
           this.picItemList.splice(i, 1);
+          break;
+        }
+      }
+      for (let i = 0; i < this.fileList.length; i++) {
+        let file = this.fileList[i];
+        Logger.log("handleDeletePicComponent==file", file.uid, uid);
+        if (file.uid == uid) {
+          this.fileList.splice(i, 1);
+          break;
         }
       }
     },
@@ -171,6 +183,7 @@ export default {
       Logger.log("handleUploadSuc resp=", response);
       Logger.log("handleUploadSuc file=", file);
       this.fileList = fileList;
+      Logger.log("handleUploadSuc fileList=", fileList);
       if (response["code"] == 0) {
         this.$message({
           message: response["msg"],
@@ -179,11 +192,14 @@ export default {
         let database64 = response["data"];
         let mime = response["mime"];
         database64 = "data:" + mime + ";base64," + database64;
-        Logger.log("database64==", database64);
+        // Logger.log("database64==", database64);
         Logger.log("mime==", mime);
         let item = this.checkAddUploadPicList(file);
         item.database64 = database64;
         item.mime = mime;
+        // item.compressSize = response["size"];
+        item.compressSize = FileSizeHelper.getPicSizeDesc(response["size"]);
+      
       } else {
         this.$message({
           message: response["msg"],

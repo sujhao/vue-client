@@ -11,8 +11,8 @@
     </div>
     <el-image style="width: 120px; height: 120px" :src="item.url" fit="cover"></el-image>
     <el-progress :percentage="item.percent"></el-progress>
-    <div>原大小:{{fileSizeDesc}}</div>
-    <div>压缩后大小:{{compressFileSizeDesc}}</div>
+    <div>原大小:{{item.size}}</div>
+    <div>压缩后大小:{{item.compressSize}}</div>
     <el-button
       size="mini"
       type="primary"
@@ -25,20 +25,22 @@
 
 <style scoped>
 .PicComponent {
+
+  margin-left: 10px;
   display: inline-block;
   background-color: #fff0ed;
   width: 150px;
-  height: 240px;
+  height: 270px;
 }
 </style>
 
 <script>
 import { FileSizeHelper } from "../engine/utils/FileSizeHelper";
-// require("../engine/utils/Download")
+import { Logger } from "../engine/utils/Logger";
 export default {
   data() {
     return {
-      // img_src:require(this.item.url)
+      // showItem: {}
     };
   },
   methods: {
@@ -46,21 +48,18 @@ export default {
       this.$parent.handleDeletePicComponent(this.item.uid);
     },
     handleDownload() {
-      console.log("handleDownload===",this.item.downloadUrl, download);
-
-        download(this.item.database64, this.item.name, this.item.mime);
-      // let x = new XMLHttpRequest();
-      // x.open("GET", this.item.downloadUrl, true);
-      // x.responseType = "blob";
-      // x.onload = (e)=> {
-      //   let url = window.URL.createObjectURL(x.response);
-      //   let a = document.createElement("a");
-      //   a.href = url;
-      //   a.download = "";
-      //   a.click();
-      // };
-      // x.send();
+      download(this.item.database64, this.item.name, this.item.mime);
     }
+  },
+  watch: {
+    // item: {
+    //   handler(newItem, oldItem) {
+    //     Logger.log("watchItem", newItem, oldItem);
+    //     this.showItem = newItem;
+    //     this.$forceUpdate();
+    //   },
+    //   immediate: true
+    // }
   },
   computed: {
     // a computed getter
@@ -77,4 +76,4 @@ export default {
   },
   props: ["item"]
 };
-</script>>
+</script>
