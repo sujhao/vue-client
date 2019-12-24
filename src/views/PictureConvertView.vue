@@ -1,8 +1,22 @@
 <template>
   <div class="piccompress-view">
-    <h1 class="logo-text">jpg,png,gif转换为webp</h1>
+    <h1 class="logo-text">{{localeItem.logoText}}</h1>
+
+    <el-select
+      class="language-select"
+      v-model="localeValue"
+      placeholder="请选择"
+      @change="handleChangeLocale"
+    >
+      <el-option
+        v-for="item in localeList"
+        :key="item.value"
+        :label="item.label"
+        :value="item.value"
+      ></el-option>
+    </el-select>
     <ol class="header-ol">
-      <li>从您的设备中选择最多{{maxPicNum}}张jpg,jpeg,png或者gif图片拖动到上传区，等待压缩完成。</li>
+      <li>{{localeItem.tips1}}{{maxPicNum}}{{localeItem.tips2}}</li>
     </ol>
     <el-upload
       class="uploadDiv"
@@ -27,14 +41,15 @@
       <!-- <i class="el-icon-plus"></i> -->
       <i class="el-icon-upload"></i>
       <div class="el-upload__text">
-        将文件拖到此处，或
-        <em>点击上传</em>
+        <!-- 将文件拖到此处，或 -->
+        {{localeItem.tips3}}
+        <em>{{localeItem.tips4}}</em>
       </div>
-      <div class="el-upload__tip" slot="tip">只能上传jpg,png,gif文件,一次最多上传{{maxPicNum}}个</div>
+      <div class="el-upload__tip" slot="tip">{{localeItem.tips5}}{{maxPicNum}}{{localeItem.tips6}}</div>
     </el-upload>
 
     <div>
-      <el-button type="danger" plain class="btnclean" @click="handleClearPic">清空列表</el-button>
+      <el-button type="danger" plain class="btnclean" @click="handleClearPic">{{localeItem.tips7}}</el-button>
     </div>
     <PicComponent
       v-for="item in picItemList"
@@ -43,8 +58,8 @@
       :ref="item.componentName"
     ></PicComponent>
 
-    <div class="pagetips">喜欢吗？赶紧分享一次</div>
-    <div class="smalltips">服务器资源有限,所有上传的数据将在一小时后将被删除。</div>
+    <div class="pagetips">{{localeItem.tips8}}</div>
+    <div class="smalltips">{{localeItem.tips9}}</div>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt />
     </el-dialog>
@@ -64,6 +79,10 @@
   font-size: 28px;
   line-height: 45px;
   padding: 0 10px;
+}
+.language-select {
+  position: fixed;
+  right: 20px;
 }
 .header-ol {
   margin: 0;
@@ -100,15 +119,26 @@ import PicComponent from "../component/PicComponent"; //引入子组件
 import { FileSizeHelper } from "../engine/utils/FileSizeHelper";
 import { Md5Helper } from "../engine/utils/Md5Helper";
 import { DateUtil } from "../engine/utils/DateUtil";
-import { Locale } from "../locale/Locale";
+import { Locale, Locale_Language } from "../locale/Locale";
 
 export default {
   data() {
     return {
       httpData: {
         time: 12121,
-        value:"",
+        value: ""
       },
+      localeValue: 0,
+      localeList: [
+        {
+          label: "中文",
+          value: Locale_Language.zh
+        },
+        {
+          label: "English",
+          value: Locale_Language.en
+        }
+      ],
       picId: 0,
       maxPicNum: 7,
       dialogImageUrl: "",
@@ -128,14 +158,51 @@ export default {
         // mime:""
         // }
       ],
-      fileList: []
+      fileList: [],
+      localeItem: {
+        logoText: "",
+        tips1: "",
+        tips2: "",
+        tips3: "",
+        tips4: "",
+        tips5: "",
+        tips6: "",
+        tips7: "",
+        tips8: "",
+        tips9: ""
+      }
     };
   },
   mounted() {
-    document.title = Locale.getLocaleDesc("title1");
+    this.refreshLocaleContent();
   },
   components: { PicComponent },
   methods: {
+    handleChangeLocale() {
+      Logger.log("handleChangeLocale==", this.localeValue);
+      Locale.nowLanguage = this.localeValue;
+      this.refreshLocaleContent();
+      Logger.log("refs==", this.$refs.picItem);
+
+      for (let i = 0; i < this.$refs.picItem.length; i++) {
+        let picComponent = this.$refs.picItem[i];
+        Logger.log("PicComponent==", picComponent);
+        picComponent.refreshLocaleContent()
+      }
+    },
+    refreshLocaleContent() {
+      document.title = Locale.getLocaleDesc("title1");
+      this.localeItem.logoText = Locale.getLocaleDesc("logo1");
+      this.localeItem.tips1 = Locale.getLocaleDesc("tips1");
+      this.localeItem.tips2 = Locale.getLocaleDesc("tips2");
+      this.localeItem.tips3 = Locale.getLocaleDesc("tips3");
+      this.localeItem.tips4 = Locale.getLocaleDesc("tips4");
+      this.localeItem.tips5 = Locale.getLocaleDesc("tips5");
+      this.localeItem.tips6 = Locale.getLocaleDesc("tips6");
+      this.localeItem.tips7 = Locale.getLocaleDesc("tips7");
+      this.localeItem.tips8 = Locale.getLocaleDesc("tips8");
+      this.localeItem.tips9 = Locale.getLocaleDesc("tips9");
+    },
     isInPicList(uid) {
       for (let i = 0; i < this.picItemList.length; i++) {
         let item = this.picItemList[i];
@@ -153,7 +220,7 @@ export default {
         item = {};
         this.picId++;
         item["id"] = this.picId;
-        item["componentName"] = "picItem" + uid;
+        item["componentName"] = "picItem";
         item["uid"] = uid;
         item["url"] = picUrl;
         item["name"] = file.name;
@@ -214,6 +281,7 @@ export default {
         item.database64 = database64;
         item.mime = mime;
         item["newName"] = response["newName"];
+        item["show"] = true;
         // item.compressSize = response["size"];
         item.compressSize = FileSizeHelper.getPicSizeDesc(response["size"]);
       } else {
@@ -236,8 +304,10 @@ export default {
     },
     handleBeforeUpload(file) {
       Logger.log("handleBeforeUpload file=", file);
-      this.httpData.time = DateUtil.now()
-      this.httpData.value = Md5Helper.getSimpleEncryptStr(this.httpData.time+"")
+      this.httpData.time = DateUtil.now();
+      this.httpData.value = Md5Helper.getSimpleEncryptStr(
+        this.httpData.time + ""
+      );
     },
     handdleUploadChange(file, fileList) {
       Logger.log("handdleUploadChange file=", file);
