@@ -48,7 +48,7 @@ export default {
       this.$parent.handleDeletePicComponent(this.item.uid);
     },
     handleDownload() {
-      download(this.item.database64, this.item.name, this.item.mime);
+      download(this.item.database64, this.item.newName, this.item.mime);
     }
   },
   watch: {

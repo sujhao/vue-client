@@ -2,13 +2,18 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import PictureCompressView from "../views/PictureCompressView.vue"
+import PictureConvertView from "../views/PictureConvertView.vue"
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    redirect:"/picCompress"
+    redirect: "/picConvert"
+  },
+  {
+    path: '/picConvert',
+    component: PictureConvertView
   },
   {
     path: '/picCompress',

@@ -1,9 +1,8 @@
 <template>
   <div class="piccompress-view">
-    <h1 class="logo-text">图片压缩</h1>
+    <h1 class="logo-text">jpg,png,gif转换为webp</h1>
     <ol class="header-ol">
-      <li>从您的设备中选择最多10张jpg,jpeg或者png图片拖动到上传区，等待压缩完成。</li>
-      <li>单独下载的压缩图或下载所有的ZIP压缩包。</li>
+      <li>从您的设备中选择最多{{maxPicNum}}张jpg,jpeg,png或者gif图片拖动到上传区，等待压缩完成。</li>
     </ol>
     <el-upload
       class="uploadDiv"
@@ -20,9 +19,10 @@
       list-type="picture"
       :show-file-list="false"
       :limit="maxPicNum"
-      accept="image/jpeg, image/png"
+      accept="image/jpeg, image/png, image/gif"
       ref="uploadUI"
       :file-list="fileList"
+      :data="httpData"
     >
       <!-- <i class="el-icon-plus"></i> -->
       <i class="el-icon-upload"></i>
@@ -30,13 +30,18 @@
         将文件拖到此处，或
         <em>点击上传</em>
       </div>
-      <div class="el-upload__tip" slot="tip">只能上传jpg/png文件,一次最多上传{{maxPicNum}}个</div>
+      <div class="el-upload__tip" slot="tip">只能上传jpg,png,gif文件,一次最多上传{{maxPicNum}}个</div>
     </el-upload>
 
     <div>
       <el-button type="danger" plain class="btnclean" @click="handleClearPic">清空列表</el-button>
     </div>
-    <PicComponent v-for="item in picItemList" :key="item.id" v-bind:item="item" :ref="item.componentName"></PicComponent>
+    <PicComponent
+      v-for="item in picItemList"
+      :key="item.id"
+      v-bind:item="item"
+      :ref="item.componentName"
+    ></PicComponent>
 
     <div class="pagetips">喜欢吗？赶紧分享一次</div>
     <div class="smalltips">服务器资源有限,所有上传的数据将在一小时后将被删除。</div>
@@ -62,7 +67,8 @@
 }
 .header-ol {
   margin: 0;
-  margin-left: 1.4em;
+  list-style-type: none;
+  /* margin-left: 1.4em; */
 }
 
 .uploadDiv {
@@ -92,15 +98,21 @@ import { Config } from "../engine/config/Config";
 const axios = require("axios");
 import PicComponent from "../component/PicComponent"; //引入子组件
 import { FileSizeHelper } from "../engine/utils/FileSizeHelper";
+import { Md5Helper } from "../engine/utils/Md5Helper";
+import { DateUtil } from "../engine/utils/DateUtil";
 import { Locale } from "../locale/Locale";
 
 export default {
   data() {
     return {
+      httpData: {
+        time: 12121,
+        value:"",
+      },
       picId: 0,
       maxPicNum: 7,
       dialogImageUrl: "",
-      uploadUrl: Config.Compress_Url,
+      uploadUrl: Config.Convert_Url,
       dialogVisible: false,
       picItemList: [
         // {
@@ -119,9 +131,8 @@ export default {
       fileList: []
     };
   },
-
-  mounted(){
-    document.title = Locale.getLocaleDesc("title1")
+  mounted() {
+    document.title = Locale.getLocaleDesc("title1");
   },
   components: { PicComponent },
   methods: {
@@ -202,9 +213,9 @@ export default {
         let item = this.checkAddUploadPicList(file);
         item.database64 = database64;
         item.mime = mime;
+        item["newName"] = response["newName"];
         // item.compressSize = response["size"];
         item.compressSize = FileSizeHelper.getPicSizeDesc(response["size"]);
-      
       } else {
         this.$message({
           message: response["msg"],
@@ -225,6 +236,8 @@ export default {
     },
     handleBeforeUpload(file) {
       Logger.log("handleBeforeUpload file=", file);
+      this.httpData.time = DateUtil.now()
+      this.httpData.value = Md5Helper.getSimpleEncryptStr(this.httpData.time+"")
     },
     handdleUploadChange(file, fileList) {
       Logger.log("handdleUploadChange file=", file);
