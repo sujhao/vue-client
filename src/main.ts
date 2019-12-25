@@ -12,8 +12,3 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 
-function mainInit(){
-  Logger.info("mainInit")
-}
-
-mainInit();

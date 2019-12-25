@@ -184,10 +184,12 @@ export default {
       this.refreshLocaleContent();
       Logger.log("refs==", this.$refs.picItem);
 
-      for (let i = 0; i < this.$refs.picItem.length; i++) {
-        let picComponent = this.$refs.picItem[i];
-        Logger.log("PicComponent==", picComponent);
-        picComponent.refreshLocaleContent()
+      if(this.$refs.picItem){
+        for (let i = 0; i < this.$refs.picItem.length; i++) {
+          let picComponent = this.$refs.picItem[i];
+          Logger.log("PicComponent==", picComponent);
+          picComponent.refreshLocaleContent()
+        }
       }
     },
     refreshLocaleContent() {
